@@ -8,6 +8,8 @@ load_dotenv()
 openai.api_key = os.getenv("OPEN_AI_KEY")
 lakera_api_key = os.getenv("LAKERA_API_KEY")
 lakera_project_id = os.getenv("LAKERA_PROJECT_ID")
+
+# Define the system role for the AI assistant for a medical device company
 system_role = """
 You are a helpful healthcare information assistant for medical device company.
 Your role is to provide general health information and guide visitors 
