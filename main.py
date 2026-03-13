@@ -48,6 +48,7 @@ def chat_session():
             print("\nYour input was flagged by Lakera Guard and cannot be processed. Please try again with a different prompt.")
             print("Lakera Guard details: ", details)
         else:
+            print("Lakera Guard details: ", details)
             try:
                 # Call OpenAI API to get response
                 response = openai.chat.completions.create(
