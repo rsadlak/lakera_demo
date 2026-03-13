@@ -8,6 +8,11 @@ load_dotenv()
 openai.api_key = os.getenv("OPEN_AI_KEY")
 lakera_api_key = os.getenv("LAKERA_API_KEY")
 lakera_project_id = os.getenv("LAKERA_PROJECT_ID")
+system_role = """
+You are a helpful healthcare information assistant for medical device company.
+Your role is to provide general health information and guide visitors 
+to appropriate resources—NOT to provide medical advice or clinical care.
+"""
 
 
 def is_safe(user_prompt):
@@ -17,11 +22,15 @@ def is_safe(user_prompt):
     url = "https://api.lakera.ai/v2/guard"
     payload = {"messages": [{"content": user_prompt, "role": "user"}], "project_id": lakera_project_id}
     headers = {"Authorization": f"Bearer {lakera_api_key}"}
-
-    response = session.post(url, json=payload, headers=headers)
     
-    result = response.json()
+    try:
+        response = session.post(url, json=payload, headers=headers)    
+        result = response.json()
 
+    except Exception as e:
+        print("An error occurred while communicating with the Lakera Guard API: ", {e})
+        return False, {"error": str(e)}
+    
     return not result.get("flagged", False), result
 
 def chat_session():
@@ -29,7 +38,7 @@ def chat_session():
     print("--- Welcome to the interactive OpenAI CLI! Type 'exit' to end the session. ---")
 
     #Initialize message history to keep context
-    messages = [{"role": "system", "content": "You are a helpful assistant."}]
+    messages = [{"role": "system", "content": system_role}]
 
     while True:
         #Get user input
@@ -48,7 +57,6 @@ def chat_session():
             print("\nYour input was flagged by Lakera Guard and cannot be processed. Please try again with a different prompt.")
             print("Lakera Guard details: ", details)
         else:
-            print("Lakera Guard details: ", details)
             try:
                 # Call OpenAI API to get response
                 response = openai.chat.completions.create(
