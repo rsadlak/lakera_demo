@@ -1,6 +1,7 @@
 import os
 import openai
 import requests
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -26,7 +27,8 @@ def is_safe(user_prompt):
     headers = {"Authorization": f"Bearer {lakera_api_key}"}
     
     try:
-        response = session.post(url, json=payload, headers=headers)    
+        response = session.post(url, json=payload, headers=headers)
+        print(f"\n LAKERA API RESPONSE TIME: {response.elapsed.total_seconds():.4f} SECONDS \n")
         result = response.json()
 
     except Exception as e:
@@ -41,6 +43,16 @@ def chat_session():
 
     #Initialize message history to keep context
     messages = [{"role": "system", "content": system_role}]
+
+    #setup system role for the assistant
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+        )
+    except Exception as e:
+        print("An error occurred while communicating with the OpenAI API: ", {e})
+        return
 
     while True:
         #Get user input
@@ -61,12 +73,20 @@ def chat_session():
         else:
             try:
                 # Call OpenAI API to get response
+
+                start_time = time.perf_counter()
+
                 response = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=messages,
                 )
-                
-                # Extract and display the asssistant's reply
+
+                end_time = time.perf_counter()
+                elapsed = end_time - start_time
+
+                # Print OpenAI API response time
+                print(f"OPENAI API RESPONSE TIME: {elapsed:.4f} SECONDS")
+                # Extract and display the assistant's reply
                 assitant_reply = response.choices[0].message.content
                 print("AI: " + assitant_reply)
 
