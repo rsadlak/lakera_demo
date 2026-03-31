@@ -62,8 +62,7 @@ def chat_session():
             print("Ending chat session. Goodbye!")
             break
         
-        # Append user message to history
-        messages.append({"role": "user", "content": user_input})
+
 
         safe, details = is_safe(user_input)
 
@@ -73,6 +72,9 @@ def chat_session():
         else:
             try:
                 # Call OpenAI API to get response
+
+                # Append user message to history
+                messages.append({"role": "user", "content": user_input})
 
                 start_time = time.perf_counter()
 
